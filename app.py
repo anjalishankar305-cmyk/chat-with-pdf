@@ -13,11 +13,22 @@ from pypdf import PdfReader
 
 load_dotenv()
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-if not GOOGLE_API_KEY:
-    raise ValueError("GOOGLE API KEY IS NOT PRESENT IN MY .ENV FILE")
-
+GOOGLE_API_KEY: str | None = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 INDEX_PATH = "faiss_index"
+
+st.set_page_config(page_title="PDF Chat Assistant", page_icon="📄")
+
+if not GOOGLE_API_KEY:
+    st.warning("Google API key is missing. Enter it below to continue.")
+    GOOGLE_API_KEY = st.text_input(
+        "Google API key",
+        type="password",
+        help="Add it to your deployment environment as GOOGLE_API_KEY or enter it here for this session.",
+    )
+    if GOOGLE_API_KEY:
+        os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
+    else:
+        st.stop()
 
 
 def read_pdfs(pdf_files):
